@@ -105,10 +105,10 @@ class TaxiAgent:
 
 if __name__ == "__main__":
     # Let's use the weights of the pretrained q_table
-    q_table_path = './q_table.npy'
+    q_table_path = './q_table_weights.npy'
     # Initialize a taxi agent
     agent = TaxiAgent(q_table_path=q_table_path)
     # Train the taxi
     #agent.train(num_episodes=1001)
     # Initiate self-drive
-    agent.drive(20, sleep_time=0.1)
+    agent.drive(episodes=10, sleep_time=0.1)

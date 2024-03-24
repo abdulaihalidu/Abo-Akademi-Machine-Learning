@@ -1,2 +1,4 @@
 Predicting the success of Marketing Campaigns/.ipynb_checkpoints
 Lab 3 - Re-enforcement learning (drive a taxi)/lab_env/*
+.gitignore
+.gitattributes

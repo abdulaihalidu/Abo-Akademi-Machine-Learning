@@ -1,5 +1,6 @@
 import gymnasium as gym
 import numpy as np
+import pandas as pd
 import random
 from IPython.display import clear_output
 import argparse
@@ -12,8 +13,8 @@ class TaxiAgent:
         self.q_table = self.load_q_table(q_table_path) if q_table_path else np.zeros([self.env.observation_space.n, self.env.action_space.n])
         
         # Hyperparameters
-        self.alpha = 0.4
-        self.gamma = 0.7
+        self.alpha = 0.6
+        self.gamma = 0.8
         self.epsilon = 0.1
 
         # Metrics
@@ -31,6 +32,7 @@ class TaxiAgent:
             return np.zeros([self.env.observation_space.n, self.env.action_space.n])
 
     def train(self, num_episodes=1001, weights_file_name=None):
+        training_error = []
         for episode in range(1, num_episodes):
             state = self.env.reset()[0]
             total_loss, penalties = 0, 0
@@ -51,6 +53,7 @@ class TaxiAgent:
                 state = next_state
 
             self.all_losses.append(total_loss)
+            training_error.append({"Episode": episode, "Loss": total_loss})
             
             if self.log and episode % 100 == 0:
                 clear_output(wait=True)
@@ -63,7 +66,10 @@ class TaxiAgent:
 
         if weights_file_name:
             np.save(f'{weights_file_name}.npy', self.q_table)
-            print("Training finished.\nSaving learned Q-table to disk...")
+        print("Training finished.\nSaving learned Q-table to disk...")
+        # Save training loss to file
+        training_error_df = pd.DataFrame(training_error)
+        training_error_df.to_csv("training_errors.csv", index=False)
 
     def drive(self, episodes=5, sleep_time=1):
         total_epochs, total_penalties = 0, 0

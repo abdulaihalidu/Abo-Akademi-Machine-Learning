@@ -8,7 +8,7 @@ import time
 
 
 class TaxiAgent:
-    def __init__(self, env_name='Taxi-v3', q_table_path=None, logging=False, render=False):
+    def __init__(self, alpha, gamma, epsilon, env_name='Taxi-v3', q_table_path=None, logging=False, render=False):
         self.render = render
         self.log = logging
         self.env = gym.make(env_name, render_mode="human" if render else None)
@@ -16,9 +16,9 @@ class TaxiAgent:
             [self.env.observation_space.n, self.env.action_space.n])
 
         # Hyperparameters
-        self.alpha = 0.6
-        self.gamma = 0.8
-        self.epsilon = 0.1
+        self.alpha = alpha
+        self.gamma = gamma
+        self.epsilon = epsilon
 
         # Metrics
         self.all_losses = []  # Tracks "loss" for each episode
@@ -56,7 +56,7 @@ class TaxiAgent:
 
                 penalties += reward == -10
                 state = next_state
-            self.epsilon = (self.epsilon - 0.001) if (self.epsilon >
+            self.epsilon = (self.epsilon - 0.002) if (self.epsilon >
                                                       0.001) else (self.epsilon)
 
             self.all_losses.append(total_loss)
@@ -96,7 +96,7 @@ class TaxiAgent:
             total_epochs += epochs
             total_penalties += penalties
             # Sleep momentarily after deliverying the passenger.
-            time.sleep(0.9)
+            time.sleep(1.5)
 
         print(f"Results after {episodes} episodes:\nAverage timesteps per episode: {
               total_epochs / episodes}\nAverage penalties per episode: {total_penalties / episodes}")
@@ -121,11 +121,17 @@ if __name__ == "__main__":
                         help='Enable rendering')
     parser.add_argument('-st', '--sleep_time', type=float,
                         default=0.1, help='Sleep time between each move')
+    parser.add_argument('-ep', '--epsilon', type=float,
+                        default=0.1, help='Set epsilon value')
+    parser.add_argument('-g', '--gamma', type=float,
+                        default=0.6, help='Set gamma value')
+    parser.add_argument('-a', '--alpha', type=float,
+                        default=0.6, help='Set alpha value')
 
     args = parser.parse_args()
 
-    agent = TaxiAgent(q_table_path=args.weights,
-                      logging=args.log, render=args.render)
+    agent = TaxiAgent(q_table_path=args.weights, epsilon=args.epsilon, alpha=args.alpha,
+                      gamma=args.gamma, logging=args.log, render=args.render)
 
     if args.train:
         if not args.save_weights:
